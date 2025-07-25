@@ -1,13 +1,8 @@
 #!groovy
 @Library('devops@main') _
 
-//func from shareLibrary
 def deploy = new org.devops.deploy()
 def tools = new org.devops.tools()
-
-
-//env
-// String deployHosts = "${env.deployHosts}"
 
 pipeline {
     agent {
@@ -31,13 +26,6 @@ spec:
     args:
     - \$(JENKINS_SECRET)
     - \$(JENKINS_NAME)
-    env:
-    - name: JENKINS_URL
-      value: http://localhost:30080
-  volumes:
-  - name: ssh-key
-    secret:
-      secretName: ansible-ssh-key
 """
         }
     }
@@ -49,11 +37,22 @@ spec:
                     script {
                         tools.printMess("执行安装", "green")
                     }
-                    sh '''
-                        export ANSIBLE_HOST_KEY_CHECKING=False
-                        ansible --version
-                        ansible-playbook -i ansible/inventory ansible/deploy.yml
-                    '''
+                    
+                    withCredentials([sshUserPrivateKey(credentialsId: 'ansible-ssh-key', keyFileVariable: 'SSH_KEY')]) {
+                        sh '''
+                            export ANSIBLE_HOST_KEY_CHECKING=False
+                            ansible --version
+                            
+                            # 调试：显示工作区内容，确认 inventory 文件存在
+                            ls -la
+                            ls -la ansible/
+                            
+                            # 执行 Ansible Playbook，使用注入的 SSH 密钥
+                            ansible-playbook -i ansible/inventory ansible/deploy.yml \
+                              --private-key $SSH_KEY \
+                              -vvv  # 添加详细输出，便于调试
+                        '''
+                    }
                 }
             }
         }
