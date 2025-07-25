@@ -1,0 +1,2 @@
+[app]
+10.67.47.92 ansible_user=root ansible_ssh_password=iso*help

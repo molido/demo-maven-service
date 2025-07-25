@@ -1,0 +1,84 @@
+#!groovy
+@Library('devops@main') _
+
+//func from shareLibrary
+def deploy = new org.devops.deploy()
+def tools = new org.devops.tools()
+
+
+//env
+String deployHosts = "${env.deployHosts}"
+
+pipeline {
+    agent {
+        kubernetes {
+            label 'ansible-agent'
+            yaml """
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    app: ansible
+spec:
+  containers:
+  - name: ansible
+    image: willhallonline/ansible:latest
+    command:
+    - cat
+    tty: true
+  - name: jnlp
+    image: jenkins/inbound-agent:latest
+    args:
+    - \$(JENKINS_SECRET)
+    - \$(JENKINS_NAME)
+    env:
+    - name: JENKINS_URL
+      value: http://10.67.47.92:30080
+  volumes:
+  - name: ssh-key
+    secret:
+      secretName: ansible-ssh-key
+"""
+        }
+    }
+
+    stages {
+        stage('Run Ansible') {
+            steps {
+                container('ansible') {
+                    script {
+                        tools.printMess("执行安装", "green")
+                    }
+                    sh '''
+                        export ANSIBLE_HOST_KEY_CHECKING=False
+                        ansible --version
+                        ansible-playbook -i ansible/inventory ansible/deploy.yml
+                    '''
+                }
+            }
+        }
+    }
+
+    post {
+        always {
+            script {
+                println("always")
+            }
+        }
+        success {
+            script {
+                println("success")
+            }
+        }
+        failure {
+            script {
+                println("failure")
+            }
+        }
+        aborted {
+            script {
+                println("aborted")
+            }
+        }
+    }
+}
