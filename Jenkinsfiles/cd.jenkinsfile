@@ -7,7 +7,7 @@ def tools = new org.devops.tools()
 
 
 //env
-String deployHosts = "${env.deployHosts}"
+// String deployHosts = "${env.deployHosts}"
 
 pipeline {
     agent {
@@ -33,7 +33,7 @@ spec:
     - \$(JENKINS_NAME)
     env:
     - name: JENKINS_URL
-      value: http://10.67.47.92:30080
+      value: http://localhost:30080
   volumes:
   - name: ssh-key
     secret:
