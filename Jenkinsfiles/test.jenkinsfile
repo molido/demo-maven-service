@@ -1,0 +1,10 @@
+pipeline {
+    agent any
+    stages {
+        stage('Hello') {
+            steps {
+                echo "没有 library 也能跑"
+            }
+        }
+    }
+}
