@@ -43,14 +43,10 @@ spec:
                             export ANSIBLE_HOST_KEY_CHECKING=False
                             ansible --version
                             
-                            # 调试：显示工作区内容，确认 inventory 文件存在
-                            ls -la
-                            ls -la ansible/
-                            
                             # 执行 Ansible Playbook，使用注入的 SSH 密钥
                             ansible-playbook -i ansible/inventory ansible/deploy.yml \
                               --private-key $SSH_KEY \
-                              -vvv  # 添加详细输出，便于调试
+                              -vvv
                         '''
                     }
                 }
