@@ -45,8 +45,7 @@ spec:
                             
                             # 执行 Ansible Playbook，使用注入的 SSH 密钥
                             ansible-playbook -i ansible/inventory ansible/deploy.yml \
-                              --private-key $SSH_KEY \
-                              -vvv
+                              --private-key $SSH_KEY
                         '''
                     }
                 }
